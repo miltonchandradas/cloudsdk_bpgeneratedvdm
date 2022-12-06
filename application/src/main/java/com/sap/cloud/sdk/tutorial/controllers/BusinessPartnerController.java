@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sap.cloud.sdk.cloudplatform.connectivity.DefaultDestination;
+import com.sap.cloud.sdk.cloudplatform.connectivity.DestinationAccessor;
 import com.sap.cloud.sdk.cloudplatform.connectivity.HttpDestination;
 import com.sap.cloud.sdk.datamodel.odata.helper.Order;
 import com.sap.cloud.sdk.tutorial.vdm.namespaces.businesspartner.BusinessPartner;
@@ -23,16 +23,11 @@ public class BusinessPartnerController {
 
     private static final String CATEGORY_PERSON = "1";
     private static final String APIKEY_HEADER = "apikey";
-    private static final String SANDBOX_APIKEY = "<YOUR APIKEY GOES HERE>";
 
     @RequestMapping( value = "/getBusinessPartners", method = RequestMethod.GET )
     public String getBusinessPartners() {
-        final HttpDestination destination = DefaultDestination.builder()
-                                                .property("Name", "mydestination")
-                                                .property("URL", "https://sandbox.api.sap.com/s4hanacloud")
-                                                .property("Type", "HTTP")
-                                                .property("Authentication", "NoAuthentication")
-                                                .build().asHttp();
+        final String destinationName = "mydestination";
+        final HttpDestination destination = DestinationAccessor.getDestination(destinationName).asHttp();
 
         final List<BusinessPartner> businessPartners =
                     new DefaultAPIBUSINESSPARTNERService().withServicePath("sap/opu/odata/sap/API_BUSINESS_PARTNER")
@@ -46,7 +41,7 @@ public class BusinessPartnerController {
                             .filter(BusinessPartner.BP_CATEGORY.eq(CATEGORY_PERSON))
                             .orderBy(BusinessPartner.LAST_NAME, Order.ASC)
                             .top(200)
-                            .withHeader(APIKEY_HEADER, SANDBOX_APIKEY)
+                            .withHeader(APIKEY_HEADER, System.getenv("SANDBOX_APIKEY"))
                             .executeRequest(destination);
 
             logger.info(String.format("Found %d business partner(s).", businessPartners.size()));
