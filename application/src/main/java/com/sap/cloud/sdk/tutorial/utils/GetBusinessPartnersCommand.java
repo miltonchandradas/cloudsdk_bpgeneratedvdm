@@ -36,7 +36,8 @@ public class GetBusinessPartnersCommand {
     private final ResilienceConfiguration myResilienceConfig;
 
     public GetBusinessPartnersCommand(HttpDestination destination) {
-        this(destination, new DefaultAPIBUSINESSPARTNERService().withServicePath("sap/opu/odata/sap/API_BUSINESS_PARTNER"));
+        this(destination,
+                new DefaultAPIBUSINESSPARTNERService().withServicePath("sap/opu/odata/sap/API_BUSINESS_PARTNER"));
     }
 
     public GetBusinessPartnersCommand(HttpDestination destination, APIBUSINESSPARTNERService service) {
@@ -46,11 +47,14 @@ public class GetBusinessPartnersCommand {
         myResilienceConfig = ResilienceConfiguration.of(APIBUSINESSPARTNERService.class)
                 .isolationMode(ResilienceIsolationMode.TENANT_AND_USER_OPTIONAL)
                 .timeLimiterConfiguration(
-                        ResilienceConfiguration.TimeLimiterConfiguration.of()
-                                .timeoutDuration(Duration.ofMillis(10000)))
-                .bulkheadConfiguration(
-                        ResilienceConfiguration.BulkheadConfiguration.of()
-                                .maxConcurrentCalls(20));
+                        ResilienceConfiguration.TimeLimiterConfiguration.of().timeoutDuration(Duration.ofMillis(10000)))
+                .bulkheadConfiguration(ResilienceConfiguration.BulkheadConfiguration.of().maxConcurrentCalls(20));
+
+        final ResilienceConfiguration.CacheConfiguration cacheConfig = ResilienceConfiguration.CacheConfiguration
+                .of(Duration.ofSeconds(10)).withoutParameters();
+
+        myResilienceConfig.cacheConfiguration(cacheConfig);
+
     }
 
     public List<BusinessPartner> execute() {
@@ -62,19 +66,11 @@ public class GetBusinessPartnersCommand {
 
     private List<BusinessPartner> run() {
         try {
-            return businessPartnerService
-                    .getAllBusinessPartner()
-                    .select(BusinessPartner.BUSINESS_PARTNER,
-                            BusinessPartner.LAST_NAME,
-                            BusinessPartner.FIRST_NAME,
-                            BusinessPartner.MALE,
-                            BusinessPartner.FEMALE,
-                            BusinessPartner.CREATED_ON
-                    )
+            return businessPartnerService.getAllBusinessPartner()
+                    .select(BusinessPartner.BUSINESS_PARTNER, BusinessPartner.LAST_NAME, BusinessPartner.FIRST_NAME,
+                            BusinessPartner.MALE, BusinessPartner.FEMALE, BusinessPartner.CREATED_ON)
                     .filter(BusinessPartner.BP_CATEGORY.eq(CATEGORY_PERSON))
-                    .orderBy(BusinessPartner.LAST_NAME, Order.ASC)
-                    .top(200)
-                    .withHeader(APIKEY_HEADER, SANDBOX_APIKEY)
+                    .orderBy(BusinessPartner.LAST_NAME, Order.ASC).top(200).withHeader(APIKEY_HEADER, SANDBOX_APIKEY)
                     .executeRequest(destination);
         } catch (ODataException e) {
             throw new ResilienceRuntimeException(e);
