@@ -1,8 +1,7 @@
 package com.sap.cloud.sdk.tutorial.utils;
 
-import java.util.List;
+
 import java.time.Duration;
-import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,30 +12,30 @@ import com.sap.cloud.sdk.cloudplatform.resilience.ResilienceIsolationMode;
 import com.sap.cloud.sdk.cloudplatform.resilience.ResilienceRuntimeException;
 import com.sap.cloud.sdk.datamodel.odata.client.exception.ODataException;
 import com.sap.cloud.sdk.cloudplatform.connectivity.HttpDestination;
-import com.sap.cloud.sdk.datamodel.odata.helper.Order;
 import com.sap.cloud.sdk.tutorial.vdm.namespaces.businesspartner.BusinessPartner;
 import com.sap.cloud.sdk.tutorial.vdm.services.APIBUSINESSPARTNERService;
 import com.sap.cloud.sdk.tutorial.vdm.services.DefaultAPIBUSINESSPARTNERService;
 
-public class GetBusinessPartnersCommand {
+public class GetBusinessPartnerCommand {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(GetBusinessPartnersCommand.class);
 
-    private static final String CATEGORY_PERSON = "1";
     private final HttpDestination destination;
+    private final String id;
     private static final String APIKEY_HEADER = "apikey";
     private static final String SANDBOX_APIKEY = "JIzPB8YwC3gFHFMfTmTks6yMxmQGKtuE";
 
     private final APIBUSINESSPARTNERService businessPartnerService;
     private final ResilienceConfiguration myResilienceConfig;
 
-    public GetBusinessPartnersCommand(HttpDestination destination) {
-        this(destination,
+    public GetBusinessPartnerCommand(HttpDestination destination, String id) {
+        this(destination, id,
                 new DefaultAPIBUSINESSPARTNERService().withServicePath("sap/opu/odata/sap/API_BUSINESS_PARTNER"));
     }
 
-    public GetBusinessPartnersCommand(HttpDestination destination, APIBUSINESSPARTNERService service) {
+    public GetBusinessPartnerCommand(HttpDestination destination, String id, APIBUSINESSPARTNERService service) {
         this.destination = destination;
+        this.id = id;
         businessPartnerService = service;
 
         myResilienceConfig = ResilienceConfiguration.of(APIBUSINESSPARTNERService.class)
@@ -52,20 +51,19 @@ public class GetBusinessPartnersCommand {
 
     }
 
-    public List<BusinessPartner> execute() {
+    public BusinessPartner execute() {
         return ResilienceDecorator.executeSupplier(this::run, myResilienceConfig, e -> {
             logger.warn("Fallback called because of exception.", e);
-            return Collections.emptyList();
+            return null;
         });
     }
 
-    private List<BusinessPartner> run() {
+    private BusinessPartner run() {
         try {
-            return businessPartnerService.getAllBusinessPartner()
+            return businessPartnerService.getBusinessPartnerByKey(id)
                     .select(BusinessPartner.BUSINESS_PARTNER, BusinessPartner.LAST_NAME, BusinessPartner.FIRST_NAME,
                             BusinessPartner.MALE, BusinessPartner.FEMALE, BusinessPartner.CREATED_ON)
-                    .filter(BusinessPartner.BP_CATEGORY.eq(CATEGORY_PERSON))
-                    .orderBy(BusinessPartner.LAST_NAME, Order.ASC).top(200).withHeader(APIKEY_HEADER, SANDBOX_APIKEY)
+                    .withHeader(APIKEY_HEADER, SANDBOX_APIKEY)
                     .executeRequest(destination);
         } catch (ODataException e) {
             throw new ResilienceRuntimeException(e);

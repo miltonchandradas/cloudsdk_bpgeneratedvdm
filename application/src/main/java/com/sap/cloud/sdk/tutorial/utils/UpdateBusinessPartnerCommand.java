@@ -1,8 +1,6 @@
 package com.sap.cloud.sdk.tutorial.utils;
 
-import java.util.List;
 import java.time.Duration;
-import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,30 +11,32 @@ import com.sap.cloud.sdk.cloudplatform.resilience.ResilienceIsolationMode;
 import com.sap.cloud.sdk.cloudplatform.resilience.ResilienceRuntimeException;
 import com.sap.cloud.sdk.datamodel.odata.client.exception.ODataException;
 import com.sap.cloud.sdk.cloudplatform.connectivity.HttpDestination;
-import com.sap.cloud.sdk.datamodel.odata.helper.Order;
 import com.sap.cloud.sdk.tutorial.vdm.namespaces.businesspartner.BusinessPartner;
 import com.sap.cloud.sdk.tutorial.vdm.services.APIBUSINESSPARTNERService;
 import com.sap.cloud.sdk.tutorial.vdm.services.DefaultAPIBUSINESSPARTNERService;
 
-public class GetBusinessPartnersCommand {
+public class UpdateBusinessPartnerCommand {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(GetBusinessPartnersCommand.class);
 
-    private static final String CATEGORY_PERSON = "1";
     private final HttpDestination destination;
+    private final String id;
+    private final BusinessPartner businessPartner;
     private static final String APIKEY_HEADER = "apikey";
     private static final String SANDBOX_APIKEY = "JIzPB8YwC3gFHFMfTmTks6yMxmQGKtuE";
 
     private final APIBUSINESSPARTNERService businessPartnerService;
     private final ResilienceConfiguration myResilienceConfig;
 
-    public GetBusinessPartnersCommand(HttpDestination destination) {
-        this(destination,
+    public UpdateBusinessPartnerCommand(HttpDestination destination, String id, BusinessPartner businessPartner) {
+        this(destination, id, businessPartner,
                 new DefaultAPIBUSINESSPARTNERService().withServicePath("sap/opu/odata/sap/API_BUSINESS_PARTNER"));
     }
 
-    public GetBusinessPartnersCommand(HttpDestination destination, APIBUSINESSPARTNERService service) {
+    public UpdateBusinessPartnerCommand(HttpDestination destination, String id, BusinessPartner businessPartner, APIBUSINESSPARTNERService service) {
         this.destination = destination;
+        this.id = id;
+        this.businessPartner = businessPartner;
         businessPartnerService = service;
 
         myResilienceConfig = ResilienceConfiguration.of(APIBUSINESSPARTNERService.class)
@@ -45,28 +45,28 @@ public class GetBusinessPartnersCommand {
                         ResilienceConfiguration.TimeLimiterConfiguration.of().timeoutDuration(Duration.ofMillis(10000)))
                 .bulkheadConfiguration(ResilienceConfiguration.BulkheadConfiguration.of().maxConcurrentCalls(20));
 
-        final ResilienceConfiguration.CacheConfiguration cacheConfig = ResilienceConfiguration.CacheConfiguration
-                .of(Duration.ofSeconds(10)).withoutParameters();
-
-        myResilienceConfig.cacheConfiguration(cacheConfig);
-
     }
 
-    public List<BusinessPartner> execute() {
+    public String execute() {
         return ResilienceDecorator.executeSupplier(this::run, myResilienceConfig, e -> {
             logger.warn("Fallback called because of exception.", e);
-            return Collections.emptyList();
+            return "Business Partner update failed...";
         });
     }
 
-    private List<BusinessPartner> run() {
+    private String run() {
         try {
-            return businessPartnerService.getAllBusinessPartner()
+            BusinessPartner bp = businessPartnerService.getBusinessPartnerByKey(id)
                     .select(BusinessPartner.BUSINESS_PARTNER, BusinessPartner.LAST_NAME, BusinessPartner.FIRST_NAME,
                             BusinessPartner.MALE, BusinessPartner.FEMALE, BusinessPartner.CREATED_ON)
-                    .filter(BusinessPartner.BP_CATEGORY.eq(CATEGORY_PERSON))
-                    .orderBy(BusinessPartner.LAST_NAME, Order.ASC).top(200).withHeader(APIKEY_HEADER, SANDBOX_APIKEY)
+                    .withHeader(APIKEY_HEADER, SANDBOX_APIKEY)
                     .executeRequest(destination);
+
+            bp.setFirstName(businessPartner.FIRST_NAME.toString());
+            businessPartnerService.updateBusinessPartner(bp);
+
+            return "Business Partner updated succeeded...";
+
         } catch (ODataException e) {
             throw new ResilienceRuntimeException(e);
         }
