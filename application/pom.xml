@@ -157,6 +157,7 @@
                             <packageName>com.sap.cloud.sdk.tutorial.vdm</packageName>
                             <defaultBasePath>odata/v2/</defaultBasePath>
                             <compileScope>COMPILE</compileScope>
+                            <nameSource>NAME</nameSource>
                             <serviceMethodsPerEntitySet>true</serviceMethodsPerEntitySet>
                         </configuration>
                     </execution>
