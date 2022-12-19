@@ -23,7 +23,7 @@ public class DeleteBusinessPartnerCommand {
     private final HttpDestination destination;
     private final String id;
     private static final String APIKEY_HEADER = "apikey";
-    private static final String SANDBOX_APIKEY = "JIzPB8YwC3gFHFMfTmTks6yMxmQGKtuE";
+    private static final String SANDBOX_APIKEY = "<YOUR APIKEY GOES HERE>";
 
     private final APIBUSINESSPARTNERService businessPartnerService;
     private final ResilienceConfiguration myResilienceConfig;
