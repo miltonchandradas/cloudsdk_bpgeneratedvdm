@@ -23,7 +23,7 @@ public class GetBusinessPartnerCommand {
     private final HttpDestination destination;
     private final String id;
     private static final String APIKEY_HEADER = "apikey";
-    private static final String SANDBOX_APIKEY = "JIzPB8YwC3gFHFMfTmTks6yMxmQGKtuE";
+    private static final String SANDBOX_APIKEY = "<YOUR APIKEY GOES HERE>";
 
     private final APIBUSINESSPARTNERService businessPartnerService;
     private final ResilienceConfiguration myResilienceConfig;
@@ -62,7 +62,7 @@ public class GetBusinessPartnerCommand {
         try {
             return businessPartnerService.getBusinessPartnerByKey(id)
                     .select(BusinessPartner.BUSINESS_PARTNER, BusinessPartner.LAST_NAME, BusinessPartner.FIRST_NAME,
-                            BusinessPartner.MALE, BusinessPartner.FEMALE, BusinessPartner.CREATED_ON)
+                            BusinessPartner.IS_MALE, BusinessPartner.IS_FEMALE, BusinessPartner.CREATION_DATE)
                     .withHeader(APIKEY_HEADER, SANDBOX_APIKEY)
                     .executeRequest(destination);
         } catch (ODataException e) {

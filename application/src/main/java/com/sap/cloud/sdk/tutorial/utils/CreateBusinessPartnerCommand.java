@@ -16,10 +16,8 @@ import com.sap.cloud.sdk.cloudplatform.resilience.ResilienceDecorator;
 import com.sap.cloud.sdk.cloudplatform.resilience.ResilienceIsolationMode;
 import com.sap.cloud.sdk.cloudplatform.resilience.ResilienceRuntimeException;
 import com.sap.cloud.sdk.datamodel.odata.client.exception.ODataException;
-import com.sap.cloud.sdk.cloudplatform.connectivity.DefaultDestination;
 import com.sap.cloud.sdk.cloudplatform.connectivity.HttpDestination;
 import com.sap.cloud.sdk.datamodel.odata.helper.ModificationResponse;
-import com.sap.cloud.sdk.datamodel.odata.helper.Order;
 import com.sap.cloud.sdk.tutorial.vdm.namespaces.businesspartner.BusinessPartner;
 import com.sap.cloud.sdk.tutorial.vdm.services.APIBUSINESSPARTNERService;
 import com.sap.cloud.sdk.tutorial.vdm.services.DefaultAPIBUSINESSPARTNERService;
@@ -28,11 +26,10 @@ public class CreateBusinessPartnerCommand {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(GetBusinessPartnersCommand.class);
 
-    private static final String CATEGORY_PERSON = "1";
     private final HttpDestination destination;
     private final BusinessPartner businessPartner;
     private static final String APIKEY_HEADER = "apikey";
-    private static final String SANDBOX_APIKEY = "JIzPB8YwC3gFHFMfTmTks6yMxmQGKtuE";
+    private static final String SANDBOX_APIKEY = "<YOUR APIKEY GOES HERE>";
 
     private final APIBUSINESSPARTNERService businessPartnerService;
     private final ResilienceConfiguration myResilienceConfig;
