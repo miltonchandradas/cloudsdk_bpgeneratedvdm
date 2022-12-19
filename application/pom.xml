@@ -144,13 +144,35 @@
                         </goals>
                         <configuration>
                             <inputDirectory>${project.basedir}/edmx</inputDirectory>
-                            <outputDirectory>${project.build.directory}/vdm</outputDirectory>
+                            <outputDirectory>${project.build.directory}/generated-sources/vdm</outputDirectory>
                             <includeEntitySets>A_BusinessPartner</includeEntitySets>
                             <deleteOutputDirectory>true</deleteOutputDirectory>
                             <packageName>com.sap.cloud.sdk.tutorial.vdm</packageName>
                             <defaultBasePath>odata/v2/</defaultBasePath>
                             <compileScope>COMPILE</compileScope>
+                            <nameSource>NAME</nameSource>
                             <serviceMethodsPerEntitySet>true</serviceMethodsPerEntitySet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <!-- a hint for IDE's to add the java sources to the classpath -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>01-add-test-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/vdm/</source>
+                            </sources>
                         </configuration>
                     </execution>
                 </executions>
