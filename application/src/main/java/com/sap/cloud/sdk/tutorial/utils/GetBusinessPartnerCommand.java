@@ -62,7 +62,7 @@ public class GetBusinessPartnerCommand {
         try {
             return businessPartnerService.getBusinessPartnerByKey(id)
                     .select(BusinessPartner.BUSINESS_PARTNER, BusinessPartner.LAST_NAME, BusinessPartner.FIRST_NAME,
-                            BusinessPartner.MALE, BusinessPartner.FEMALE, BusinessPartner.CREATED_ON)
+                            BusinessPartner.IS_MALE, BusinessPartner.IS_FEMALE, BusinessPartner.CREATION_DATE)
                     .withHeader(APIKEY_HEADER, SANDBOX_APIKEY)
                     .executeRequest(destination);
         } catch (ODataException e) {

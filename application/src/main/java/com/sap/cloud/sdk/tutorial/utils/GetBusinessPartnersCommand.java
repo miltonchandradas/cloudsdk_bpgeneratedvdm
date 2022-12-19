@@ -63,8 +63,8 @@ public class GetBusinessPartnersCommand {
         try {
             return businessPartnerService.getAllBusinessPartner()
                     .select(BusinessPartner.BUSINESS_PARTNER, BusinessPartner.LAST_NAME, BusinessPartner.FIRST_NAME,
-                            BusinessPartner.MALE, BusinessPartner.FEMALE, BusinessPartner.CREATED_ON)
-                    .filter(BusinessPartner.BP_CATEGORY.eq(CATEGORY_PERSON))
+                            BusinessPartner.IS_MALE, BusinessPartner.IS_FEMALE, BusinessPartner.CREATION_DATE)
+                    .filter(BusinessPartner.BUSINESS_PARTNER_CATEGORY.eq(CATEGORY_PERSON))
                     .orderBy(BusinessPartner.LAST_NAME, Order.ASC).top(200).withHeader(APIKEY_HEADER, SANDBOX_APIKEY)
                     .executeRequest(destination);
         } catch (ODataException e) {
