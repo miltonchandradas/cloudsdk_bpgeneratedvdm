@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sap.cloud.sdk.cloudplatform.connectivity.DefaultDestination;
 import com.sap.cloud.sdk.cloudplatform.connectivity.HttpDestination;
-import com.sap.cloud.sdk.datamodel.odata.helper.Order;
 import com.sap.cloud.sdk.tutorial.utils.GetBusinessPartnersCommand;
 import com.sap.cloud.sdk.tutorial.vdm.namespaces.businesspartner.BusinessPartner;
-import com.sap.cloud.sdk.tutorial.vdm.services.DefaultAPIBUSINESSPARTNERService;
 
 @RestController
 public class BusinessPartnerController {
